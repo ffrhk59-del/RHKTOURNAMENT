@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#090909">
+<title>RHK FF Tournament</title>
+<style>
+:root{--red:#ff3038;--bg:#090909;--panel:#171719;--muted:#a7a7ad;--line:#29292e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font-family:Arial,Helvetica,sans-serif}
+header{padding:18px 17px 14px;background:linear-gradient(130deg,#260608,#101012 65%);border-bottom:1px solid #3a1719;position:sticky;top:0;z-index:5}
+.brand{font-size:23px;font-weight:900;letter-spacing:1px}.brand span{color:var(--red)}.tag{color:#c7c7cb;font-size:11px;margin-top:4px;letter-spacing:2px}
+main{padding:16px 15px 88px;max-width:720px;margin:auto}.hero{padding:20px;border-radius:17px;background:linear-gradient(120deg,#8e1118,#35090c 55%,#171719);margin-bottom:19px}
+.hero small{color:#ffd6d7;letter-spacing:2px;font-weight:bold}.hero h1{font-size:28px;margin:9px 0}.hero p{color:#f1c9ca;font-size:13px;line-height:1.5}
+.btn{border:0;background:var(--red);color:#fff;padding:11px 15px;border-radius:9px;font-weight:bold;cursor:pointer}.btn.secondary{background:#2b2b30;border:1px solid #444}.btn.full{width:100%}
+.sectionhead{display:flex;align-items:center;justify-content:space-between;margin:20px 0 11px}.sectionhead h2{font-size:18px;margin:0}.muted{color:var(--muted);font-size:12px}
+.tabs{display:flex;gap:8px;overflow:auto;margin:12px 0}.chip{background:#202024;color:#ddd;border:1px solid #34343a;border-radius:30px;padding:8px 13px;white-space:nowrap}.chip.active{background:#4b1014;border-color:var(--red);color:#fff}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}.cardtop{display:flex;justify-content:space-between;gap:10px}.mode{font-size:11px;color:#ff8589;background:#3b1114;padding:5px 8px;border-radius:6px;height:max-content}
+.card h3{margin:0 0 7px;font-size:17px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:13px 0}.stat{background:#101012;padding:9px;border-radius:8px}.stat b{display:block;font-size:14px}.stat span{font-size:10px;color:var(--muted)}
+nav{position:fixed;bottom:0;left:0;right:0;background:#111114;border-top:1px solid #333;display:flex;justify-content:space-around;padding:9px 4px calc(9px + env(safe-area-inset-bottom));z-index:10}
+nav button{background:none;border:0;color:#aaa;font-size:11px;padding:5px;cursor:pointer}nav button.active{color:#ff555b}
+.page{display:none}.page.active{display:block}.field{margin:11px 0}.field label{display:block;color:#bbb;font-size:12px;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;background:#0d0d0f;border:1px solid #39393f;color:white;border-radius:8px;padding:12px;font-size:14px}
+.notice{background:#241417;border:1px solid #542328;padding:11px;border-radius:9px;color:#ffc7ca;font-size:12px;line-height:1.5}
+.empty{text-align:center;padding:26px;color:#aaa}.room{font-family:monospace;color:#ff777c;font-size:16px}
+footer{text-align:center;color:#666;font-size:11px;padding:20px}
+</style>
+</head>
+<body>
+<header><div class="brand">RHK <span>FF</span></div><div class="tag">BATTLE • COMPETE • WIN</div></header>
+<main>
+<section id="home" class="page active">
+ <div class="hero"><small>WELCOME TO RHK FF</small><h1>YOUR BATTLE STARTS HERE</h1><p>Join Free Fire Solo, Duo and Squad tournaments. Register, play fair and climb the leaderboard.</p><button class="btn" onclick="showPage('tournaments')">Explore tournaments</button></div>
+ <div class="sectionhead"><h2>Featured tournaments</h2><span class="muted">Open events</span></div>
+ <div id="featured"></div>
+ <div class="notice">Demo version: tournament registrations are saved on this device only. Online login, live database and real payments are not connected yet.</div>
+</section>
+<section id="tournaments" class="page">
+ <div class="sectionhead"><h2>All tournaments</h2><span class="muted">RHK FF</span></div>
+ <div class="tabs"><button class="chip active" onclick="filterMode('All',this)">All</button><button class="chip" onclick="filterMode('Solo',this)">Solo</button><button class="chip" onclick="filterMode('Duo',this)">Duo</button><button class="chip" onclick="filterMode('Squad',this)">Squad</button></div>
+ <div id="tournamentList"></div>
+</section>
+<section id="matches" class="page">
+ <div class="sectionhead"><h2>My matches</h2></div><div id="myMatches" class="empty">You haven't registered for any tournament yet.</div>
+</section>
+<section id="rank" class="page">
+ <div class="sectionhead"><h2>Leaderboard</h2><span class="muted">Top players</span></div>
+ <div class="card"><div class="cardtop"><b>#1  RHK Player</b><b>0 pts</b></div><p class="muted">Leaderboard will update when match results are added by the admin.</p></div>
+</section>
+<section id="profile" class="page">
+ <div class="sectionhead"><h2>Player profile</h2></div>
+ <div class="card">
+  <div class="field"><label>Player name</label><input id="playerName" placeholder="Enter your name"></div>
+  <div class="field"><label>Free Fire UID</label><input id="playerUid" placeholder="Enter your UID" inputmode="numeric"></div>
+  <div class="field"><label>WhatsApp number (optional)</label><input id="playerPhone" placeholder="10-digit number" inputmode="tel"></div>
+  <button class="btn full" onclick="saveProfile()">Save profile</button>
+ </div>
+ <div class="notice">Use your correct in-game name and UID when registering.</div>
+</section>
+<section id="admin" class="page">
+ <div class="sectionhead"><h2>Admin dashboard</h2><span class="muted">Local demo</span></div>
+ <div class="notice">This is a local demo admin panel, not protected for public use. Do not use it to collect payments or sensitive information.</div>
+ <div class="card">
+  <h3>Create tournament</h3>
+  <div class="field"><label>Tournament title</label><input id="newTitle" placeholder="e.g. RHK Sunday Clash"></div>
+  <div class="field"><label>Mode</label><select id="newMode"><option>Solo</option><option>Duo</option><option>Squad</option></select></div>
+  <div class="field"><label>Entry fee (₹)</label><input id="newFee" type="number" min="0" value="0"></div>
+  <div class="field"><label>Prize pool (₹)</label><input id="newPrize" type="number" min="0" value="500"></div>
+  <div class="field"><label>Slots</label><input id="newSlots" type="number" min="2" value="48"></div>
+  <button class="btn full" onclick="createTournament()">Add tournament</button>
+ </div>
+ <div class="card"><h3>Registrations</h3><div id="adminRegs" class="muted">No registrations yet.</div></div>
+ <div class="card">
+  <h3>Room details</h3>
+  <div class="field"><label>Room ID</label><input id="roomId" placeholder="Room ID"></div>
+  <div class="field"><label>Room password</label><input id="roomPass" placeholder="Room password"></div>
+  <button class="btn full" onclick="saveRoom()">Save room details</button>
+ </div>
+</section>
+<footer>RHK FF • Play fair. Respect every player.</footer>
+</main>
+<nav>
+ <button class="active" data-page="home" onclick="showPage('home')">⌂<br>Home</button>
+ <button data-page="tournaments" onclick="showPage('tournaments')">⚔<br>Tournaments</button>
+ <button data-page="matches" onclick="showPage('matches')">▣<br>Matches</button>
+ <button data-page="rank" onclick="showPage('rank')">♛<br>Rank</button>
+ <button data-page="profile" onclick="showPage('profile')">●<br>Profile</button>
+ <button data-page="admin" onclick="showPage('admin')">⚙<br>Admin</button>
+</nav>
+<script>
+const starter=[
+{id:1,title:"RHK Solo Clash",mode:"Solo",fee:0,prize:500,slots:48},
+{id:2,title:"Duo Battle Night",mode:"Duo",fee:20,prize:1000,slots:24},
+{id:3,title:"Squad Championship",mode:"Squad",fee:50,prize:2500,slots:12}
+];
+let tournaments=JSON.parse(localStorage.getItem("rhk_tournaments")||"null")||starter;
+let regs=JSON.parse(localStorage.getItem("rhk_regs")||"[]");
+let profile=JSON.parse(localStorage.getItem("rhk_profile")||"{}");
+let room=JSON.parse(localStorage.getItem("rhk_room")||"{}");
+function persist(){localStorage.setItem("rhk_tournaments",JSON.stringify(tournaments));localStorage.setItem("rhk_regs",JSON.stringify(regs))}
+function card(t){let count=regs.filter(r=>r.tid===t.id).length;return `<div class="card"><div class="cardtop"><div><h3>${esc(t.title)}</h3><span class="muted">${t.mode} match</span></div><span class="mode">${t.fee==0?"FREE":"₹"+t.fee+" ENTRY"}</span></div><div class="stats"><div class="stat"><b>₹${t.prize}</b><span>Prize pool</span></div><div class="stat"><b>${count}/${t.slots}</b><span>Players</span></div><div class="stat"><b>${t.mode}</b><span>Format</span></div></div><button class="btn full" onclick="registerFor(${t.id})">Register now</button></div>`}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){document.getElementById("featured").innerHTML=tournaments.slice(0,2).map(card).join("")||'<div class="empty">No tournaments yet.</div>';renderList();renderMatches();renderAdmin()}
+function renderList(mode="All"){let a=mode==="All"?tournaments:tournaments.filter(t=>t.mode===mode);document.getElementById("tournamentList").innerHTML=a.map(card).join("")||'<div class="empty">No tournaments in this category.</div>'}
+function filterMode(m,b){document.querySelectorAll(".tabs .chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderList(m)}
+function showPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(p).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));if(p==="admin")renderAdmin()}
+function registerFor(id){if(!profile.name||!profile.uid){alert("Please save your player name and Free Fire UID in Profile first.");showPage("profile");return}let t=tournaments.find(x=>x.id===id);if(regs.some(r=>r.tid===id&&r.uid===profile.uid)){alert("You are already registered for this tournament.");return}if(regs.filter(r=>r.tid===id).length>=t.slots){alert("Slots are full.");return}regs.push({tid:id,title:t.title,name:profile.name,uid:profile.uid,phone:profile.phone||"",time:new Date().toLocaleString()});persist();render();alert("Registration saved on this device!")}
+function saveProfile(){profile={name:document.getElementById("playerName").value.trim(),uid:document.getElementById("playerUid").value.trim(),phone:document.getElementById("playerPhone").value.trim()};if(!profile.name||!profile.uid){alert("Enter player name and UID.");return}localStorage.setItem("rhk_profile",JSON.stringify(profile));alert("Profile saved!")}
+function renderMatches(){let el=document.getElementById("myMatches");let mine=regs.filter(r=>profile.uid&&r.uid===profile.uid);el.className=mine.length?"":"empty";el.innerHTML=mine.length?mine.map(r=>`<div class="card"><h3>${esc(r.title)}</h3><div class="muted">Registered as ${esc(r.name)} • UID ${esc(r.uid)}</div>${room.id?`<p>Room ID: <span class="room">${esc(room.id)}</span><br>Pass: <span class="room">${esc(room.pass||"—")}</span></p>`:"<p class='muted'>Room details will appear here when shared by admin.</p>"}</div>`).join(""):"You haven't registered for any tournament yet."}
+function createTournament(){let title=document.getElementById("newTitle").value.trim();if(!title){alert("Enter tournament title.");return}tournaments.unshift({id:Date.now(),title,mode:document.getElementById("newMode").value,fee:Math.max(0,+document.getElementById("newFee").value||0),prize:Math.max(0,+document.getElementById("newPrize").value||0),slots:Math.max(2,+document.getElementById("newSlots").value||2)});persist();render();document.getElementById("newTitle").value="";alert("Tournament added.")}
+function renderAdmin(){document.getElementById("adminRegs").innerHTML=regs.length?regs.map(r=>`<p>${esc(r.title)} — ${esc(r.name)} (UID: ${esc(r.uid)})</p>`).join(""):"No registrations yet."}
+function saveRoom(){room={id:document.getElementById("roomId").value.trim(),pass:document.getElementById("roomPass").value.trim()};localStorage.setItem("rhk_room",JSON.stringify(room));renderMatches();alert("Room details saved on this device.")}
+if(profile.name)document.getElementById("playerName").value=profile.name;if(profile.uid)document.getElementById("playerUid").value=profile.uid;if(profile.phone)document.getElementById("playerPhone").value=profile.phone;
+render();
+</script>
+</body></html>
